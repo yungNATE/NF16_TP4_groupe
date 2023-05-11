@@ -1,25 +1,45 @@
-// Structures et types
-struct Position {
-    int numeroLigne;
-    int ordre;
-    int numeroPhrase;
-    struct Position* suivant;
-};
-typedef struct Position T_Position;
+#include "tp4.h"
 
-struct Noeud {
-    char* mot;
-    int nbOccurences;
-    T_Position* listePositions;
-    struct Noeud* filsGauche;
-    struct Noeud* filsDroit;
-};
-typedef struct Noeud T_Noeud;
+T_Position *ajouterPosition(T_Position *listeP, int ligne, int ordre, int phrase){
+
+    // Création position
+
+    T_Position *nouveau = malloc(sizeof(T_Position));
+    if (nouveau == NULL) return NULL;
+    nouveau->numeroLigne = ligne;
+    nouveau->ordre = ordre;
+    nouveau->numeroPhrase = phrase;
+
+    T_Position *iter = listeP;
+    T_Position *precedent = NULL;
 
 
-struct Index {
-    T_Noeud* racine;
-    int nbMotsDistincts;
-    int nbMotsTotal;
-};
-typedef struct Index T_Index;
+    // Chercher la bonne position
+    while (iter != NULL){
+        if (iter->numeroLigne < ligne){
+            precedent = iter;
+            iter = iter->suivant;
+        }
+
+        if (iter->numeroLigne = ligne){
+            if (iter->ordre < ordre){
+                precedent = iter;
+                iter = iter->suivant;
+            }
+
+            else if (iter->ordre == ordre){
+                // Déjà existe
+            }
+
+            else {
+                // Insert and return
+            }
+        }
+    }
+
+    // Si on n'a pas retrouvé la bonne ligne c'est qu'elle existe pas
+    // Ici donc iter = NULL et precedent est le dernier élément
+
+    precedent->suivant = nouveau;
+    return listeP;
+}
