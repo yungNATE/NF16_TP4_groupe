@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef TP4_H_INCLUDED
+#define TP4_H_INCLUDED
 
 // Structures et types
 struct Position {
@@ -26,3 +26,5 @@ struct Index {
     int nbMotsTotal;
 };
 typedef struct Index T_Index;
+
+#endif // TP4_H_INCLUDED
