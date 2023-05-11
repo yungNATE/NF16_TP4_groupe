@@ -1,0 +1,11 @@
+# Compiled source #
+###################
+*.exe
+
+
+# VS Code #
+.vscode
+settings.json
+
+# ignored #
+ignored
