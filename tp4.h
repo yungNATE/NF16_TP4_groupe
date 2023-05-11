@@ -1,3 +1,6 @@
+#ifndef TP4_H_INCLUDED
+#define TP4_H_INCLUDED
+
 // Structures et types
 struct Position {
     int numeroLigne;
@@ -23,3 +26,5 @@ struct Index {
     int nbMotsTotal;
 };
 typedef struct Index T_Index;
+
+#endif // TP4_H_INCLUDED
