@@ -15,3 +15,4 @@ int ajouterOccurence(T_Index *index, char *mot, int ligne, int ordre, int phrase
         if(nouveauMot) index->nbMotsDistincts++;
     }
 }
+// toto
