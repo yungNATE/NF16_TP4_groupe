@@ -27,4 +27,14 @@ struct Index {
 };
 typedef struct Index T_Index;
 
+// Fonctions
+
+//Affichage positions d'un même mot
+void afficherPosition(T_Position *listeP);
+
+//Ajout d'une position
+T_Position *ajouterPosition(T_Position *listeP, int ligne, int ordre, int phrase);
+
+T_Position *creerPosition(int ligne, int ordre, int phrase);
+
 #endif // TP4_H_INCLUDED
