@@ -601,5 +601,86 @@ void drawBinaryTree(T_Noeud* node, int level) {
 }
 
 void drawIndexTree(T_Index* index) {
+
     drawBinaryTree(index->racine, 0);
+}
+
+void afficherOccurencesMot(T_Index index, char *mot){
+
+    
+
+    char affiche[MAX_WORD_LENGTH];
+
+    T_Noeud *cible = rechercherMot(index, mot);
+    
+    strcpy(affiche, cible->mot);
+    tranformerPremiereLettre(affiche);
+
+    printf("Mot = \"%s\"\n", affiche);
+    printf("Occurences = %d\n", cible->nbOccurences);
+
+    // Nous allons itérer les phrases une seule fois au total
+    // Car on sait que naturellement les positions sont ordonnées par ordre de nr de phrase croissant
+    // On n'aura donc pas besoin d'accèder à une phrase antérieure à un instant donné
+
+    T_Position *iter_pos = cible->listePositions;
+    T_Phrase *iter_phrase = index.texte->premiere;
+    T_Position *iter_mot_affiche;
+
+    while (iter_pos != NULL){
+
+        printf("| Ligne %d, mot %d : ", iter_pos->numeroLigne, iter_pos->ordre);
+
+        while (iter_phrase->numero != iter_pos->numeroPhrase)
+        {
+            iter_phrase = iter_phrase->suivant;
+        }
+
+        // On est à la bonne phrase et on l'affiche
+
+        iter_mot_affiche = iter_phrase->premiermot; // Le premier mot
+
+        strcpy(affiche, iter_mot_affiche->noeud_parent->mot);
+        tranformerPremiereLettre(affiche);
+        printf("%s ", affiche);
+
+        iter_mot_affiche = iter_mot_affiche->mot_suivant;
+
+        while (iter_mot_affiche != NULL && (iter_mot_affiche->numeroPhrase != (iter_pos->numeroPhrase + 1)))
+        {
+            printWord(iter_mot_affiche);
+            iter_mot_affiche = iter_mot_affiche->mot_suivant;
+        }
+
+        printf("\n");
+
+        iter_pos = iter_pos->position_suivante;
+
+    }
+
+}
+
+void tranformerPremiereLettre(char *mot){
+
+    if (mot[0] >= 'a' && mot[0] <= 'z'){
+        mot[0] = mot[0] - ('a' - 'A');
+    }
+
+}
+
+void printWord(T_Position *pos){
+
+    printf("%s", pos->noeud_parent->mot);
+
+    // Si c'est le dernier mot de la phrase afficher . et pas d'espace
+    if (pos->mot_suivant == NULL || (pos->numeroPhrase != (pos->mot_suivant->numeroPhrase)))
+    {
+        printf(".");
+    }
+
+    // Espace sinon
+    else{
+        printf(" ");
+    }
+
 }

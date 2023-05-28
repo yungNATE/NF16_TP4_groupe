@@ -80,6 +80,7 @@ T_Noeud* rechercherMot(T_Index index, char *mot);
 T_Phrase *creer_phrase(int numero);
 T_Texte *creer_texte();
 
+void afficherOccurencesMot(T_Index index, char *mot);
 
 // Gestion pile
 
@@ -92,5 +93,7 @@ T_Noeud *depiler(T_Pile *p);
 
 void drawBinaryTree(T_Noeud* node, int level);
 void drawIndexTree(T_Index* index);
+void tranformerPremiereLettre(char *mot);
+void printWord(T_Position *pos);
 
 #endif // TP4_H_INCLUDED

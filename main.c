@@ -13,16 +13,10 @@ int main(void){
 
     T_Index *index = creerIndex();
 
-    char filename[] = "test.txt";
+    char filename[] = "test.txt"; // J'ai laissé exprès une ligne libre pour voir le comportement, ça a l'air ok 
     indexerFichier(index, filename);
-    // afficherIndex(*index);
 
-    T_Position *premier = index->texte->premiere->premiermot;
-
-    while (premier != NULL){
-        printf("%s ", premier->noeud_parent->mot);
-        premier = premier->mot_suivant;
-    }
+    afficherIndex(*index);
 
     return 0;
 }
