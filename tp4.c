@@ -5,6 +5,30 @@
 #include <ctype.h>
 #include "tp4.h"
 
+T_Phrase *creer_phrase(int numero){
+
+    T_Phrase *new = (T_Phrase*) malloc(sizeof(T_Phrase));
+    if (new == NULL) return NULL;
+
+    new->numero = numero;
+    new->premiermot = NULL;
+    new->derniermot = NULL;
+    new->suivant = NULL;
+    new->precedent = NULL;
+
+    return new;
+}
+
+T_Texte *creer_texte(){
+    T_Texte *new = (T_Texte*) malloc(sizeof(T_Texte));
+    if (new == NULL) return NULL;
+
+    new->premiere = NULL;
+    new->derniere = NULL;
+
+    return new;
+}
+
 T_Pile *creer_pile(int size){
     T_Pile *p = malloc(sizeof(T_Pile));
     p->sommet = -1;
@@ -47,7 +71,7 @@ T_Noeud *depiler(T_Pile *p){
 void afficherPosition(T_Position *listeP){
     while (listeP != NULL){
         printf("Ligne: %d, Ordre: %d, Phrase: %d\n", listeP->numeroLigne, listeP->ordre, listeP->numeroPhrase);
-        listeP = listeP->suivant;
+        listeP = listeP->position_suivante;
     }
 }
 
@@ -59,7 +83,9 @@ T_Position *creerPosition(int ligne, int ordre, int phrase){
     nouveau->numeroLigne = ligne;
     nouveau->ordre = ordre;
     nouveau->numeroPhrase = phrase;
-    nouveau->suivant = NULL;
+    nouveau->position_suivante = NULL;
+    nouveau->mot_suivant = NULL;
+    nouveau->noeud_parent = NULL;
     
     return nouveau;
 }
@@ -73,10 +99,25 @@ T_Noeud *creerNoeud(char *mot, int ligne, int ordre, int phrase){
     
     nouveauNoeud->mot = strdup(mot);
     nouveauNoeud->nbOccurences = 1;
-    nouveauNoeud->listePositions = NULL;
     nouveauNoeud->filsGauche = NULL;
     nouveauNoeud->filsDroit = NULL;
+
+
+    // La création d'une position dummy sert juste à avoir au moins une fois le noeud parent dans les positions
+    // Quand nous allons rajouter la première position et les suivantes
+    // Elles vont copier le noeud parent de la position précédente
+    // Comme au début on n'a pas de positions il n'y a pas l'info du noeud parent
+    // Pour résoudre le problème on créé une position dummy avec ordre = -1 pour dire qu'il y a rien
+    // Mais qui aura quand même en mémoire le noeud parent
+    // Le noeud parent servira à accéder au mot
+    // Cela évite de ré stocker chaque plusieurs fois le mot qui sera assez coûtant niveau mémoire
+
     nouveauNoeud->listePositions = nouvellePosition;
+    nouveauNoeud->listePositions->ordre = -1; // Pour dire qu'il n'y a pas de positions pour l'instant
+    nouveauNoeud->listePositions->noeud_parent = nouveauNoeud; // Pour indiquer ce noeud parent 
+    nouveauNoeud->derniere_position = nouveauNoeud->listePositions; // On en a qu'une seule donc elle est première et dernière
+
+    ajouterPosition(nouveauNoeud->listePositions, ligne, ordre, phrase);
 
     return nouveauNoeud;
 
@@ -90,6 +131,7 @@ T_Index *creerIndex(){
     nouveau->nbMotsDistincts = 0;
     nouveau->nbMotsTotal = 0;
     nouveau->racine = NULL;
+    nouveau->texte = creer_texte();
 
     return nouveau;
 }
@@ -97,10 +139,30 @@ T_Index *creerIndex(){
 T_Position *ajouterPosition(T_Position *listeP, int ligne, int ordre, int phrase){
 
     // La gestion du mauvais ordre d'insertion est gérée dans ajouterOccurence
-    // Création position
+    // La gestion du mot suivant dans le texte se fait dans ajouterOccurence
 
-    T_Position *nouveau = creerPosition(ligne, ordre, phrase);
+    // On rajoute en tête de liste si ordre = -1 cela veut dire qu'on n'a pas de positions
+    // En fait le -1 est mis à la création du noeud juste pour rajouter dans la position le noeud parent
+    // C'est un peu bizarre mais je me suis débrouillé pour laisser les prototypes des fonctions comme celles demandées
+    // Ca aurait été beaucoup plus facile juste de donner en argument l'adresse du noeud parent et éviter les conventions bizarres comme -1
+
+    // Insertion de la première position
+    // Pas besoin de créér une nouvelleposition, on modifiera la position dummy
+    // Pas besoin de modifier la dernière position
+
     T_Position *iter = listeP;
+
+    if (iter->ordre == -1){
+        iter->noeud_parent = listeP->noeud_parent;
+        iter->position_suivante = NULL;
+        iter->numeroLigne = ligne;
+        iter->ordre = ordre;
+        iter->numeroPhrase = phrase;
+        return iter;
+    }
+
+    // Création position
+    T_Position *nouveau = creerPosition(ligne, ordre, phrase);
     T_Position *precedent = NULL;
 
     // Chercher la bonne position
@@ -110,7 +172,7 @@ T_Position *ajouterPosition(T_Position *listeP, int ligne, int ordre, int phrase
         if (iter->numeroLigne < ligne) // Parcourir les lignes
         {   
             precedent = iter;
-            iter = iter->suivant;
+            iter = iter->position_suivante;
         }
 
         else if (iter->numeroLigne == ligne) // On a trouvé la bonne ligne
@@ -118,7 +180,7 @@ T_Position *ajouterPosition(T_Position *listeP, int ligne, int ordre, int phrase
             if (iter->ordre < ordre) // Parcourir les ordres
             {   
                 precedent = iter;
-                iter = iter->suivant;
+                iter = iter->position_suivante;
             }
 
             else if (iter->ordre == ordre)
@@ -136,27 +198,21 @@ T_Position *ajouterPosition(T_Position *listeP, int ligne, int ordre, int phrase
 
         else
         {   
-            // Ici on arrive si jamais iter->numeroLigne > ligne. Cela arrive quand:
-
-            // Pour une raison quelconque, on souhaite insérer en tête
-            // La ligne que l'on veut insérer n'existe pas et on va l'insérer entre 2 lignes existantes en respectant l'ordre
+            // Ici on arrive si jamais iter->numeroLigne > ligne. 
+            // Cela n'arrive jamais car on fait une insertion par ordre croissant.
 
             break;
         }
     }
 
-    // On est à la bonne ligne et au bon ordre
+    // On est à la bonne ligne et au bon ordre (à la fin normalement)
 
-    if (precedent == NULL) // On rajoute en tête de liste
-    { 
-        nouveau->suivant = listeP;
-        return nouveau;
-    }
+    nouveau->position_suivante = iter;
+    precedent->position_suivante = nouveau;
 
-    // Sinon on est au milieu ou à la fin
+    nouveau->noeud_parent = listeP->noeud_parent;
+    nouveau->noeud_parent->derniere_position = nouveau; // Comme l'insertion se fait à la fin, cette nouvelle insertion devient la dernière position du noeud (mot)
 
-    nouveau->suivant = iter;
-    precedent->suivant = nouveau;
     return listeP;
 }
 
@@ -189,11 +245,27 @@ int ajouterOccurence(T_Index *index, char *mot, int ligne, int ordre, int phrase
                 return 0;
             }
 
-            // Si jamais on a inséré en tête on refresh le pointeur
-            courant->listePositions = positionCourante; 
-            
             courant->nbOccurences++;
             index->nbMotsTotal++;
+
+            // On fait le lien entre le dernier mot entré et celui là
+            // Pour cela on cherche le dernier mot inséré de la dernière phrase insérée
+
+            if (index->texte->derniere->premiermot == NULL) // Si la phrase est vide
+            {   
+                index->texte->derniere->precedent->derniermot->mot_suivant = courant->derniere_position;
+                index->texte->derniere->premiermot = courant->derniere_position;
+                index->texte->derniere->derniermot = courant->derniere_position;
+            }
+
+            else {
+
+                index->texte->derniere->derniermot->mot_suivant = courant->derniere_position;
+                index->texte->derniere->derniermot = courant->derniere_position;
+                
+            }
+
+            // La mise à jour de la dernière position se fait dans ajouterPosition
             
             return 1; // Succès de l'ajout
 
@@ -240,11 +312,38 @@ int ajouterOccurence(T_Index *index, char *mot, int ligne, int ordre, int phrase
     
     index->nbMotsDistincts++;
     index->nbMotsTotal++;
+
+    // On fait le lien entre le dernier mot entré et celui là
+    // Pour cela on cherche le dernier mot inséré de la dernière phrase insérée
+
+    if (index->texte->premiere->premiermot == NULL){ // Si on vient de commencer et il n'y a rien dans la première phrase
+        index->texte->premiere->premiermot = nouveauNoeud->derniere_position;
+        index->texte->premiere->derniermot = nouveauNoeud->derniere_position;
+    }
+
+    else if (index->texte->derniere->premiermot == NULL) // Si la phrase est vide
+    {   
+        index->texte->derniere->precedent->derniermot->mot_suivant = nouveauNoeud->derniere_position;
+        index->texte->derniere->premiermot = nouveauNoeud->derniere_position;
+        index->texte->derniere->derniermot = nouveauNoeud->derniere_position;
+    }
+
+    else {
+
+        index->texte->derniere->derniermot->mot_suivant = nouveauNoeud->derniere_position;
+        index->texte->derniere->derniermot = nouveauNoeud->derniere_position;
+        
+    }
+
     
     return 1; // Succès
 }
 
 int indexerFichier(T_Index *index, char *filename){
+
+    // La gestion des phrases se fait ICI
+
+    int flag_nouvelle_phrase = 1; //Servira à signaler la création d'une nouvelle phrase
 
     FILE *file;
     int nb_mots_lus = 0;
@@ -262,24 +361,39 @@ int indexerFichier(T_Index *index, char *filename){
         return -1;
     }
 
+    T_Phrase *nouvellephrase = creer_phrase(1); // On initialise avec la première phrase
+    index->texte->premiere = nouvellephrase;
+    index->texte->derniere = nouvellephrase;
+
 
     // Lire chaque caractère du fichier
 
     char c;
-
     
     
     while ((c = fgetc(file)) != EOF) {
-        
+
         if (c == '\n') { // Nouvelle ligne
 
             if (strlen(mot) > 0) // Si on a lu qq chose comme mot
             { 
+
+            //Si ce mot fait partie d'une nouvelle phrase
+            if (track[2] > flag_nouvelle_phrase) { // On en crée une et met à jour le flag
+            nouvellephrase = creer_phrase(track[2]);
+            nouvellephrase->precedent = index->texte->derniere;
+            index->texte->derniere->suivant = nouvellephrase;
+            index->texte->derniere = nouvellephrase;
+            
+            flag_nouvelle_phrase = track[2];
+            }
+
             ajouterOccurence(index, mot, track[0], track[1], track[2]);
             nb_mots_lus++;
             
             // On reset le mot
             memset(mot, '\0', sizeof(mot));
+
             }
 
             track[1] = 1;
@@ -292,13 +406,25 @@ int indexerFichier(T_Index *index, char *filename){
             // On finit la lecture du mot et on l'insère
 
             if (strlen(mot) > 0) // Si on a lu qq chose comme mot
-            { 
+            {
+            
+            //Si ce mot fait partie d'une nouvelle phrase
+            if (track[2] > flag_nouvelle_phrase) { // On en crée une et met à jour le flag
+            nouvellephrase = creer_phrase(track[2]);
+            nouvellephrase->precedent = index->texte->derniere;
+            index->texte->derniere->suivant = nouvellephrase;
+            index->texte->derniere = nouvellephrase;
+            
+            flag_nouvelle_phrase = track[2];
+            }
+
             ajouterOccurence(index, mot, track[0], track[1], track[2]);
             nb_mots_lus++;
             
             // On reset le mot
             memset(mot, '\0', sizeof(mot));
             track[1]++;
+
             }
 
             // On reset le mot
@@ -310,13 +436,25 @@ int indexerFichier(T_Index *index, char *filename){
         else if (c == '.') { // Nouvelle phrase
 
             if (strlen(mot) > 0) // Si on a lu qq chose comme mot
-            { 
+            {
+
+            //Si ce mot fait partie d'une nouvelle phrase
+            if (track[2] > flag_nouvelle_phrase) { // On en crée une et met à jour le flag
+            nouvellephrase = creer_phrase(track[2]);
+            nouvellephrase->precedent = index->texte->derniere;
+            index->texte->derniere->suivant = nouvellephrase;
+            index->texte->derniere = nouvellephrase;
+            
+            flag_nouvelle_phrase = track[2];
+            }
+
             ajouterOccurence(index, mot, track[0], track[1], track[2]);
             nb_mots_lus++;
             
             // On reset le mot
             memset(mot, '\0', sizeof(mot));
             track[1]++;
+
             }
 
             track[2]++;
@@ -377,7 +515,7 @@ void afficherIndex(T_Index index){
                     position = noeud->listePositions;
                     while (position != NULL){
                         printf("|---- (l:%d, o:%d, p:%d)\n", position->numeroLigne,position->ordre, position->numeroPhrase);
-                        position = position->suivant;
+                        position = position->position_suivante;
                     }
                     printf("|\n");
 
@@ -396,7 +534,7 @@ void afficherIndex(T_Index index){
                     position = noeud->listePositions;
                     while (position != NULL){
                         printf("|---- (l:%d, o:%d, p:%d)\n", position->numeroLigne,position->ordre, position->numeroPhrase);
-                        position = position->suivant;
+                        position = position->position_suivante;
                     }
                     printf("|\n");
 

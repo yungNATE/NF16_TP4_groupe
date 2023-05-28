@@ -8,7 +8,9 @@ struct Position {
     int numeroLigne;
     int ordre;
     int numeroPhrase;
-    struct Position* suivant;
+    struct Position* position_suivante;
+    struct Position* mot_suivant;
+    struct Noeud* noeud_parent;
 };
 typedef struct Position T_Position;
 
@@ -16,19 +18,36 @@ struct Noeud {
     char* mot;
     int nbOccurences;
     T_Position* listePositions;
+    T_Position* derniere_position;
     struct Noeud* filsGauche;
     struct Noeud* filsDroit;
 };
 typedef struct Noeud T_Noeud;
 
+struct Phrase {
+    int numero;
+    T_Position* premiermot;
+    T_Position* derniermot;
+    struct Phrase* suivant;
+    struct Phrase* precedent;
+};
+typedef struct Phrase T_Phrase;
+
+struct Texte {
+    T_Phrase* premiere;
+    T_Phrase* derniere;
+};
+typedef struct Texte T_Texte;
+
+
 
 struct Index {
+    T_Texte* texte;
     T_Noeud* racine;
     int nbMotsDistincts;
     int nbMotsTotal;
 };
 typedef struct Index T_Index;
-
 
 typedef struct T_Pile {
     int sommet;
@@ -36,9 +55,11 @@ typedef struct T_Pile {
     T_Noeud *tab;
 } T_Pile;
 
+
 // Fonctions
 
 //Affichage positions d'un même mot
+
 void afficherPosition(T_Position *listeP);
 
 //Ajout d'une position
@@ -55,6 +76,9 @@ void afficherIndex(T_Index index);
 T_Index *creerIndex();
 
 T_Noeud* rechercherMot(T_Index index, char *mot);
+
+T_Phrase *creer_phrase(int numero);
+T_Texte *creer_texte();
 
 
 // Gestion pile

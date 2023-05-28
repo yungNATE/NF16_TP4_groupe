@@ -15,6 +15,14 @@ int main(void){
 
     char filename[] = "test.txt";
     indexerFichier(index, filename);
+    afficherIndex(*index);
+
+    // T_Position *premier = index->texte->premiere->premiermot;
+
+    // while (premier != NULL){
+    //     printf("%s ", premier->noeud_parent->mot);
+    //     premier = premier->mot_suivant;
+    // }
 
     return 0;
 }
