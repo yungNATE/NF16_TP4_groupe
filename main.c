@@ -16,7 +16,8 @@ int main(void){
     char filename[] = "test.txt"; // J'ai laissé exprès une ligne libre pour voir le comportement, ça a l'air ok 
     indexerFichier(index, filename);
 
-    afficherIndex(*index);
+    char destination[] = "testcopy.txt";
+    construiretexte(*index, destination);
 
     return 0;
 }

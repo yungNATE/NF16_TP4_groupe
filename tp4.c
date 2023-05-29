@@ -670,6 +670,7 @@ void tranformerPremiereLettre(char *mot){
 
 void printWord(T_Position *pos){
 
+
     printf("%s", pos->noeud_parent->mot);
 
     // Si c'est le dernier mot de la phrase afficher . et pas d'espace
@@ -683,4 +684,74 @@ void printWord(T_Position *pos){
         printf(" ");
     }
 
+}
+
+void fprintWord(T_Position *pos, FILE *f, int maj){
+
+    char affiche[MAX_WORD_LENGTH];
+    strcpy(affiche, pos->noeud_parent->mot);
+
+    if (maj == 1)
+    {
+        tranformerPremiereLettre(affiche);
+    }
+    
+    fprintf(f, "%s", affiche);
+
+    // Si c'est le dernier mot de la phrase afficher . et et un espace
+    if (pos->mot_suivant != NULL && (pos->numeroPhrase != (pos->mot_suivant->numeroPhrase)))
+    {
+        fprintf(f, ". ");
+    }
+
+    // Si c'est le dernier mot du fichier afficher . et pas d'espace
+    else if (pos->mot_suivant == NULL)
+    {
+        fprintf(f, ".");
+    }
+
+    // Espace sinon
+    else 
+    {
+        fprintf(f, " ");
+    }
+
+}
+
+void construiretexte(T_Index index, char *filename){
+
+    FILE *file = fopen(filename, "w");
+    int flag_maj = 1; // On initialise avec 1 car le premier mot sera avec majuscule
+
+    T_Position *iter_mot = index.texte->premiere->premiermot;
+
+    while (iter_mot != NULL){
+        
+        if (flag_maj == 1)
+        {
+            fprintWord(iter_mot, file, 1);
+            flag_maj = 0;
+        }
+
+        else
+        {
+            fprintWord(iter_mot, file, 0);
+        }
+        
+
+        if ((iter_mot->mot_suivant != NULL) && (iter_mot->numeroLigne != iter_mot->mot_suivant->numeroLigne)){
+            for (int k = 0; k < iter_mot->mot_suivant->numeroLigne - iter_mot->numeroLigne; k++){ // Si jamais on laisse 2 lignes ou plus d'espace
+                fprintf(file, "\n");
+            }
+        }
+
+
+        if (iter_mot->mot_suivant != NULL && iter_mot->mot_suivant->numeroPhrase > iter_mot->numeroPhrase) // Le prochain sera avec majuscule
+        {
+            flag_maj = 1;
+        }
+        iter_mot = iter_mot->mot_suivant;
+    }
+
+    fclose(file);
 }
