@@ -341,9 +341,8 @@ int ajouterOccurence(T_Index *index, char *mot, int ligne, int ordre, int phrase
 
 int indexerFichier(T_Index *index, char *filename){
 
-    // La gestion des phrases se fait ICI
-
-    int flag_nouvelle_phrase = 1; //Servira à signaler la création d'une nouvelle phrase
+    //* La gestion des phrases se fait ici
+    int flag_nouvelle_phrase = 1; // Servira à signaler la création d'une nouvelle phrase
 
     FILE *file;
     int nb_mots_lus = 0;
@@ -353,47 +352,42 @@ int indexerFichier(T_Index *index, char *filename){
     int track[3] = {1,1,1};  // Track de l'ordre
 
 
-    //Ouvrir le fichier
-
+    //* Ouvrir le fichier
     file = fopen(filename, "r");
     if (file == NULL){
         printf("Erreur dans l'ouverture du fichier.\n");
         return -1;
     }
 
+
+    //* Lire chaque caractère du fichier
     T_Phrase *nouvellephrase = creer_phrase(1); // On initialise avec la première phrase
     index->texte->premiere = nouvellephrase;
     index->texte->derniere = nouvellephrase;
-
-
-    // Lire chaque caractère du fichier
-
+    
     char c;
-    
-    
+
     while ((c = fgetc(file)) != EOF) {
 
         if (c == '\n') { // Nouvelle ligne
 
-            if (strlen(mot) > 0) // Si on a lu qq chose comme mot
+            if (strlen(mot) > 0) // Si on a lu un mot
             { 
+                // Si ce mot fait partie d'une nouvelle phrase
+                if (track[2] > flag_nouvelle_phrase) { // On en crée une et met à jour le flag
+                    nouvellephrase = creer_phrase(track[2]);
+                    nouvellephrase->precedent = index->texte->derniere;
+                    index->texte->derniere->suivant = nouvellephrase;
+                    index->texte->derniere = nouvellephrase;
+                    
+                    flag_nouvelle_phrase = track[2];
+                }
 
-            //Si ce mot fait partie d'une nouvelle phrase
-            if (track[2] > flag_nouvelle_phrase) { // On en crée une et met à jour le flag
-            nouvellephrase = creer_phrase(track[2]);
-            nouvellephrase->precedent = index->texte->derniere;
-            index->texte->derniere->suivant = nouvellephrase;
-            index->texte->derniere = nouvellephrase;
-            
-            flag_nouvelle_phrase = track[2];
-            }
-
-            ajouterOccurence(index, mot, track[0], track[1], track[2]);
-            nb_mots_lus++;
-            
-            // On reset le mot
-            memset(mot, '\0', sizeof(mot));
-
+                ajouterOccurence(index, mot, track[0], track[1], track[2]);
+                nb_mots_lus++;
+                
+                // On reset le mot
+                memset(mot, '\0', sizeof(mot));
             }
 
             track[1] = 1;
@@ -401,29 +395,30 @@ int indexerFichier(T_Index *index, char *filename){
             
         }
 
-        else if (isspace(c)) { // C'est un espace
+        // TODO : Peut-être remplacer isspace() par isblank() ? Comme isspace() prend en compte aussi les '\n' ? 
+        // En l'état ça marche parcequ'on check '\n' avant mais faudrait pas changer l'ordre des conditions
+        else if (isspace(c)) { 
             
             // On finit la lecture du mot et on l'insère
 
-            if (strlen(mot) > 0) // Si on a lu qq chose comme mot
+            if (strlen(mot) > 0) // Si on a lu un mot
             {
-            
-            //Si ce mot fait partie d'une nouvelle phrase
-            if (track[2] > flag_nouvelle_phrase) { // On en crée une et met à jour le flag
-            nouvellephrase = creer_phrase(track[2]);
-            nouvellephrase->precedent = index->texte->derniere;
-            index->texte->derniere->suivant = nouvellephrase;
-            index->texte->derniere = nouvellephrase;
-            
-            flag_nouvelle_phrase = track[2];
-            }
+                // Si ce mot fait partie d'une nouvelle phrase
+                if (track[2] > flag_nouvelle_phrase) { // On en crée une et met à jour le flag
+                    nouvellephrase = creer_phrase(track[2]);
+                    nouvellephrase->precedent = index->texte->derniere;
+                    index->texte->derniere->suivant = nouvellephrase;
+                    index->texte->derniere = nouvellephrase;
+                    
+                    flag_nouvelle_phrase = track[2];
+                }
 
-            ajouterOccurence(index, mot, track[0], track[1], track[2]);
-            nb_mots_lus++;
-            
-            // On reset le mot
-            memset(mot, '\0', sizeof(mot));
-            track[1]++;
+                ajouterOccurence(index, mot, track[0], track[1], track[2]);
+                nb_mots_lus++;
+                
+                // On reset le mot
+                memset(mot, '\0', sizeof(mot));
+                track[1]++;
 
             }
 
@@ -437,23 +432,22 @@ int indexerFichier(T_Index *index, char *filename){
 
             if (strlen(mot) > 0) // Si on a lu qq chose comme mot
             {
+                //Si ce mot fait partie d'une nouvelle phrase
+                if (track[2] > flag_nouvelle_phrase) { // On en crée une et met à jour le flag
+                    nouvellephrase = creer_phrase(track[2]);
+                    nouvellephrase->precedent = index->texte->derniere;
+                    index->texte->derniere->suivant = nouvellephrase;
+                    index->texte->derniere = nouvellephrase;
+                    
+                    flag_nouvelle_phrase = track[2];
+                }
 
-            //Si ce mot fait partie d'une nouvelle phrase
-            if (track[2] > flag_nouvelle_phrase) { // On en crée une et met à jour le flag
-            nouvellephrase = creer_phrase(track[2]);
-            nouvellephrase->precedent = index->texte->derniere;
-            index->texte->derniere->suivant = nouvellephrase;
-            index->texte->derniere = nouvellephrase;
-            
-            flag_nouvelle_phrase = track[2];
-            }
-
-            ajouterOccurence(index, mot, track[0], track[1], track[2]);
-            nb_mots_lus++;
-            
-            // On reset le mot
-            memset(mot, '\0', sizeof(mot));
-            track[1]++;
+                ajouterOccurence(index, mot, track[0], track[1], track[2]);
+                nb_mots_lus++;
+                
+                // On reset le mot
+                memset(mot, '\0', sizeof(mot));
+                track[1]++;
 
             }
 
@@ -462,16 +456,12 @@ int indexerFichier(T_Index *index, char *filename){
         }
 
 
-        else {
-
-            // On rajoute le caractère au mot courant
+        else { // On rajoute le caractère au mot courant
             strncat(mot, &c, 1);
-
         }
     }
 
-    // Dernier mot si on a oublié le point à la fin du texte
-
+    // Si on a oublié le point à la toute fin du texte, on ajoute le dernier mot qui est resté en suspens
     if (strlen(mot) > 0) {
         ajouterOccurence(index, mot, track[0], track[1], track[2]);
         nb_mots_lus++;
