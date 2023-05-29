@@ -349,7 +349,7 @@ int indexerFichier(T_Index *index, char *filename){
     char mot[MAX_WORD_LENGTH];
     memset(mot, '\0', sizeof(mot));
 
-    int track[3] = {1,1,1};  // Track de l'ordre
+    int track[3] = {1,1,1};  // Track de l'ordre : ligne, ordre dans la ligne, phrase
 
 
     //* Ouvrir le fichier
@@ -369,7 +369,8 @@ int indexerFichier(T_Index *index, char *filename){
 
     while ((c = fgetc(file)) != EOF) {
 
-        if (c == '\n') { // Nouvelle ligne
+        //* Dès qu'on a une fin de mot
+        if(c == "\n" || isspace(c) || c == '.') {
 
             if (strlen(mot) > 0) // Si on a lu un mot
             { 
@@ -389,72 +390,34 @@ int indexerFichier(T_Index *index, char *filename){
                 // On reset le mot
                 memset(mot, '\0', sizeof(mot));
             }
-
-            track[1] = 1;
-            track[0]++;
-            
         }
 
+        //* Gestion de chaque type de fin de mot
+        if (c == '\n') { // Nouvelle ligne
+            track[1] = 1;   // On reset l'ordre dans la ligne
+            track[0]++;     // On incrémente le numéro de ligne
+        }
+
+        else if (isspace(c)) { // Possiblement Nouveau mot
         // TODO : Peut-être remplacer isspace() par isblank() ? Comme isspace() prend en compte aussi les '\n' ? 
         // En l'état ça marche parcequ'on check '\n' avant mais faudrait pas changer l'ordre des conditions
-        else if (isspace(c)) { 
-            
-            // On finit la lecture du mot et on l'insère
+        // attention au retour chariot (\r) qui n'est pas pris en compte par isblank()
 
-            if (strlen(mot) > 0) // Si on a lu un mot
-            {
-                // Si ce mot fait partie d'une nouvelle phrase
-                if (track[2] > flag_nouvelle_phrase) { // On en crée une et met à jour le flag
-                    nouvellephrase = creer_phrase(track[2]);
-                    nouvellephrase->precedent = index->texte->derniere;
-                    index->texte->derniere->suivant = nouvellephrase;
-                    index->texte->derniere = nouvellephrase;
-                    
-                    flag_nouvelle_phrase = track[2];
-                }
-
-                ajouterOccurence(index, mot, track[0], track[1], track[2]);
-                nb_mots_lus++;
-                
-                // On reset le mot
-                memset(mot, '\0', sizeof(mot));
+            if (strlen(mot) > 0) { // Si on a lu un mot
                 track[1]++;
-
             }
 
-            // On reset le mot
-            memset(mot, '\0', sizeof(mot));
-
         }
-
 
         else if (c == '.') { // Nouvelle phrase
 
-            if (strlen(mot) > 0) // Si on a lu qq chose comme mot
-            {
-                //Si ce mot fait partie d'une nouvelle phrase
-                if (track[2] > flag_nouvelle_phrase) { // On en crée une et met à jour le flag
-                    nouvellephrase = creer_phrase(track[2]);
-                    nouvellephrase->precedent = index->texte->derniere;
-                    index->texte->derniere->suivant = nouvellephrase;
-                    index->texte->derniere = nouvellephrase;
-                    
-                    flag_nouvelle_phrase = track[2];
-                }
-
-                ajouterOccurence(index, mot, track[0], track[1], track[2]);
-                nb_mots_lus++;
-                
-                // On reset le mot
-                memset(mot, '\0', sizeof(mot));
+            if (strlen(mot) > 0) { // Si on a lu un mot
                 track[1]++;
-
             }
 
             track[2]++;
             
         }
-
 
         else { // On rajoute le caractère au mot courant
             strncat(mot, &c, 1);
