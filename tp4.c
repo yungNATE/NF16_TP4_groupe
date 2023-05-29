@@ -166,7 +166,6 @@ T_Position *ajouterPosition(T_Position *listeP, int ligne, int ordre, int phrase
     T_Position *precedent = NULL;
 
     // Chercher la bonne position
-
     while (iter != NULL){
 
         if (iter->numeroLigne < ligne) // Parcourir les lignes
@@ -206,7 +205,6 @@ T_Position *ajouterPosition(T_Position *listeP, int ligne, int ordre, int phrase
     }
 
     // On est à la bonne ligne et au bon ordre (à la fin normalement)
-
     nouveau->position_suivante = iter;
     precedent->position_suivante = nouveau;
 
