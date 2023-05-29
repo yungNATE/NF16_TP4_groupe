@@ -755,3 +755,78 @@ void construiretexte(T_Index index, char *filename){
 
     fclose(file);
 }
+
+void viderBuffer() {
+    int c = 0;
+    while (c != '\n' && c != EOF) {
+        c = getchar();
+    }
+}
+
+void replaceNewLine_WithNullTerminator(char *str){
+    str[strcspn(str, "\n")] = '\0';
+}
+
+char *getStringInput(char *prompt){
+
+    printf("%s", prompt);
+
+    char *input = malloc(sizeof(char) * 100);
+    fgets(input, 100, stdin);
+    replaceNewLine_WithNullTerminator(input);
+    
+    return input;
+}
+
+void deallocateIndex(T_Index *index){
+
+    // Free l'arbre et positions
+
+    deallocateArbre(index->racine);
+
+    // Free les phrases
+
+    T_Phrase *iter_phrase = index->texte->premiere;
+    T_Phrase *temp;
+
+    while (iter_phrase != NULL)
+    {
+        temp = iter_phrase->suivant;
+        free(iter_phrase);
+        iter_phrase = temp;
+    }
+
+    free(index->texte);
+
+    free(index);
+
+}
+
+void deallocateArbre(T_Noeud *noeud){
+
+    T_Position *temp;
+
+    if (noeud == NULL)
+    {
+        return;
+    }
+
+    deallocateArbre(noeud->filsGauche);
+    deallocateArbre(noeud->filsDroit);
+
+    // Free les positions du noeud
+
+    T_Position *iter_pos = noeud->listePositions;
+
+    while (iter_pos != NULL)
+    {   
+        temp = iter_pos->position_suivante;
+        free(iter_pos);
+        iter_pos = temp;
+    }
+
+    // Puis free le noeud
+
+    free(noeud);
+
+}

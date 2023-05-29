@@ -95,5 +95,11 @@ void drawBinaryTree(T_Noeud* node, int level);
 void drawIndexTree(T_Index* index);
 void tranformerPremiereLettre(char *mot);
 void printWord(T_Position *pos);
+void viderBuffer();
+char *getStringInput(char *prompt);
+void replaceNewLine_WithNullTerminator(char *str);
+
+void deallocateIndex(T_Index *index);
+void deallocateArbre(T_Noeud *noeud);
 
 #endif // TP4_H_INCLUDED
