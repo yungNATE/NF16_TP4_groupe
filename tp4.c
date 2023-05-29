@@ -217,23 +217,14 @@ T_Position *ajouterPosition(T_Position *listeP, int ligne, int ordre, int phrase
 }
 
 int ajouterOccurence(T_Index *index, char *mot, int ligne, int ordre, int phrase){
-
-    // Conversion du mot en minuscules pour l'ignorance de la case
-
-    int i;
-    int tailleMot = strlen(mot);
-    for (i = 0; i < tailleMot; i++) {
-        mot[i] = tolower(mot[i]);
-    }
     
     // Recherche de l'emplacement d'insertion dans l'ABR
-
     T_Noeud *courant = index->racine;
     T_Noeud *precedent = NULL;
     
     while (courant != NULL) {
 
-        int comparaison = strcmp(mot, courant->mot);
+        int comparaison = strcasecmp(mot, courant->mot);
         
         if (comparaison == 0) {
 
@@ -269,34 +260,26 @@ int ajouterOccurence(T_Index *index, char *mot, int ligne, int ordre, int phrase
             
             return 1; // Succès de l'ajout
 
-        } else if (comparaison > 0) {
-
+        } 
+        
+        else { // comparaison < ou > 0, le mot n'existe pas encore dans l'index
+                  
             precedent = courant;
-            courant = courant->filsDroit;
-
-        }
-
-        else {
-
-            precedent = courant;
-            courant = courant->filsGauche;
-
+            courant = comparaison < 0 ? courant->filsGauche : courant->filsDroit;
+        
         }
     }
     
 
     // Le mot n'existe pas dans l'index, création d'un nouveau nœud
-
     T_Noeud *nouveauNoeud = creerNoeud(mot, ligne, ordre, phrase);
 
     
     if (precedent == NULL) { // Il n'y avait rien au début
-
         index->racine = nouveauNoeud;
-
-    } else {
-
-        int comparaisonPrecedent = strcmp(mot, precedent->mot);
+    } 
+    else {
+        int comparaisonPrecedent = strcasecmp(mot, precedent->mot);
 
         if (comparaisonPrecedent < 0) {
 
@@ -307,7 +290,6 @@ int ajouterOccurence(T_Index *index, char *mot, int ligne, int ordre, int phrase
             precedent->filsDroit = nouveauNoeud;
 
         }
-
     }
     
     index->nbMotsDistincts++;
@@ -329,13 +311,10 @@ int ajouterOccurence(T_Index *index, char *mot, int ligne, int ordre, int phrase
     }
 
     else {
-
         index->texte->derniere->derniermot->mot_suivant = nouveauNoeud->derniere_position;
         index->texte->derniere->derniermot = nouveauNoeud->derniere_position;
-        
     }
 
-    
     return 1; // Succès
 }
 
@@ -424,6 +403,9 @@ int indexerFichier(T_Index *index, char *filename){
         }
     }
 
+    //! ⬇️ à la place, on aurait pu boucler simplement sur fgetc() et à chaque coup faire un test sur EOF 
+    // (au même titre que les 3 autres textes)
+    
     // Si on a oublié le point à la toute fin du texte, on ajoute le dernier mot qui est resté en suspens
     if (strlen(mot) > 0) {
         ajouterOccurence(index, mot, track[0], track[1], track[2]);
