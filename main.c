@@ -66,16 +66,27 @@ int main(void)
 
             T_Noeud *mot_recherche = rechercherMot(*index, nom_mot_recherche);
 
-            printf("\nOccurences :");
-            
-            T_Position *iter_position = mot_recherche->listePositions;
-
-            while (iter_position != NULL)
+            if (mot_recherche != NULL)
             {
-                printf("\nLigne : %d, Ordre dans la ligne : %d, Nr. phrase: %d.", iter_position->numeroLigne, iter_position->ordre, iter_position->numeroPhrase);
-                iter_position = iter_position->position_suivante;
+
+                printf("\nOccurences :");
+            
+                T_Position *iter_position = mot_recherche->listePositions;
+
+                while (iter_position != NULL)
+                {
+                    printf("\nLigne : %d, Ordre dans la ligne : %d, Nr. phrase: %d.", iter_position->numeroLigne, iter_position->ordre, iter_position->numeroPhrase);
+                    iter_position = iter_position->position_suivante;
+                }
+
             }
 
+            else
+            {
+                printf("\nMot non trouvé.");
+            }
+
+            
             free(nom_mot_recherche);
 
             break;       

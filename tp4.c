@@ -612,6 +612,12 @@ void afficherOccurencesMot(T_Index index, char *mot){
     char affiche[MAX_WORD_LENGTH];
 
     T_Noeud *cible = rechercherMot(index, mot);
+
+    if (cible == NULL)
+    {
+        printf("Mot non trouvé.");
+        return;
+    }
     
     strcpy(affiche, cible->mot);
     tranformerPremiereLettre(affiche);
