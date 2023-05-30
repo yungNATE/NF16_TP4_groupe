@@ -423,64 +423,42 @@ void afficherIndex(T_Index index){
 
     char c = noeud->mot[0];
 
-    while (pile_vide(p) == 0 || (noeud != NULL))
+    while (pile_vide(p) == 0 || (noeud != NULL)) {
 
-
+        // On empile tous les fils gauches
         if (noeud != NULL){
             empiler(p, noeud);
             noeud = noeud->filsGauche;
+            continue;
         }
 
-        else {
+        // On a fini
+        if(pile_vide(p) != 0) break; 
 
-            if (pile_vide(p) == 0){
 
-                noeud = depiler(p);
+        // Sinon afficher
+        noeud = depiler(p);
 
-                // Afficher 
+        if (noeud->mot[0] != c){
+            c = noeud->mot[0];
+            printf("\n");
+            printf("%c\n", c - ('a' - 'A'));
+        }
 
-                if (noeud->mot[0] == c){
-                    
-                    strcpy(mot_affiche, noeud->mot);
-                    mot_affiche[0] = mot_affiche[0] - ('a' - 'A');
-                    printf("|-- %s\n", mot_affiche);
+        strcpy(mot_affiche, noeud->mot);
+        mot_affiche[0] = mot_affiche[0] - ('a' - 'A');
+        printf("|-- %s\n", mot_affiche);
 
-                    position = noeud->listePositions;
-                    while (position != NULL){
-                        printf("|---- (l:%d, o:%d, p:%d)\n", position->numeroLigne,position->ordre, position->numeroPhrase);
-                        position = position->position_suivante;
-                    }
-                    printf("|\n");
+        position = noeud->listePositions;
+        while (position != NULL){
+            printf("|---- (l:%d, o:%d, p:%d)\n", position->numeroLigne,position->ordre, position->numeroPhrase);
+            position = position->position_suivante;
+        }
+        printf("|\n");
 
-                }
-
-                else {
-
-                    c = noeud->mot[0];
-                    printf("\n");
-                    printf("%c\n", c - ('a' - 'A'));
-
-                    strcpy(mot_affiche, noeud->mot);
-                    mot_affiche[0] = mot_affiche[0] - ('a' - 'A');
-                    printf("|-- %s\n", mot_affiche);
-
-                    position = noeud->listePositions;
-                    while (position != NULL){
-                        printf("|---- (l:%d, o:%d, p:%d)\n", position->numeroLigne,position->ordre, position->numeroPhrase);
-                        position = position->position_suivante;
-                    }
-                    printf("|\n");
-
-                }
-
-                noeud = noeud->filsDroit;
-            }
-
-            else break; // On a fini
+        noeud = noeud->filsDroit;
             
-        }
-
-
+    }
     free(p);
 }
 
