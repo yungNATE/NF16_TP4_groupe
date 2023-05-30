@@ -415,7 +415,7 @@ int indexerFichier(T_Index *index, char *filename){
 }
 
 void afficherIndex(T_Index index){
-    
+
     T_Pile *p = creer_pile(index.nbMotsTotal);
     T_Noeud *noeud = index.racine;
     T_Position *position;
@@ -459,6 +459,7 @@ void afficherIndex(T_Index index){
         noeud = noeud->filsDroit;
             
     }
+
     free(p);
 }
 
