@@ -50,6 +50,8 @@ int main(void)
                 
             case '2' :
             {
+                if(! isIndexSet(index, true)) continue;
+                
                 printf("\nNombre de mots dinstincts : %d", index->nbMotsDistincts);
                 printf("\nNombre de mots total : %d", index->nbMotsTotal);
                 break;
@@ -57,6 +59,8 @@ int main(void)
 
             case '3' :
             {
+                if(! isIndexSet(index, true)) continue;
+
                 afficherIndex(*index);
 
                 break;
@@ -64,27 +68,25 @@ int main(void)
 
             case '4' :
             {
+                if(! isIndexSet(index, true)) continue;
+
                 char *nom_mot_recherche = getStringInput("\nNom du mot ? ");
 
                 T_Noeud *mot_recherche = rechercherMot(*index, nom_mot_recherche);
 
-                if (mot_recherche != NULL)
-                {
-
+                if (mot_recherche != NULL) {
                     printf("\nOccurences :");
                 
                     T_Position *iter_position = mot_recherche->listePositions;
 
-                    while (iter_position != NULL)
-                    {
+                    while (iter_position != NULL) {
                         printf("\nLigne : %d, Ordre dans la ligne : %d, Nr. phrase: %d.", iter_position->numeroLigne, iter_position->ordre, iter_position->numeroPhrase);
                         iter_position = iter_position->position_suivante;
                     }
 
                 }
 
-                else
-                {
+                else {
                     printf("\nMot non trouvé.");
                 }
 
@@ -96,6 +98,8 @@ int main(void)
 
             case '5' :
             {
+                if(! isIndexSet(index, true)) continue;
+
                 char *nom_mot_recherche_occurences = getStringInput("\nNom du mot ? ");
 
                 printf("\n");
@@ -109,6 +113,8 @@ int main(void)
 
             case '6' :
             {
+                if(! isIndexSet(index, true)) continue;
+
                 char *nom_nouveau_fichier = getStringInput("\nNom du fichier ? ");
 
                 construireTexte(*index, nom_nouveau_fichier);
@@ -119,9 +125,10 @@ int main(void)
             }
 
             case '7' :
-
-                deallocateIndex(index);
-                free(index);
+                if(isIndexSet(index, true)) {
+                    deallocateIndex(index);
+                    free(index);
+                }
 
                 printf("\n======== PROGRAMME TERMINE ========\n");
 

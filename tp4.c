@@ -736,6 +736,13 @@ void viderBuffer() {
     }
 }
 
+void *isIndexSet(T_Index *index, bool shouldWarnUser){
+    if(index == NULL){
+        if(shouldWarnUser) printf("L'index n'est pas initialisé.\n");
+        return NULL;
+    }
+}
+
 void replaceNewLine_WithNullTerminator(char *str){
     str[strcspn(str, "\n")] = '\0';
 }

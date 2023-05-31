@@ -97,6 +97,7 @@ void premiereLettreEnMajuscule(char *mot);
 void printWord(T_Position *pos);
 void viderBuffer();
 char *getStringInput(char *prompt);
+void *isIndexSet(T_Index *index, bool shouldWarnUser);
 void replaceNewLine_WithNullTerminator(char *str);
 
 void deallocateIndex(T_Index *index);
