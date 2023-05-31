@@ -30,6 +30,7 @@ int main(void)
 
         printf("\nChoix %c sélectionné \n", choix);
 
+
         switch (choix)
         {
             case '1' :
