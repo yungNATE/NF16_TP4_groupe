@@ -727,7 +727,7 @@ void construireTexte(T_Index index, char *filename){
         if (iter_mot->mot_suivant != NULL && iter_mot->mot_suivant->numeroPhrase > iter_mot->numeroPhrase) { // Le prochain sera avec majuscule
             flag_maj = 1;
         }
-        
+
         iter_mot = iter_mot->mot_suivant;
     }
 
@@ -759,11 +759,9 @@ char *getStringInput(char *prompt){
 void deallocateIndex(T_Index *index){
 
     // Free l'arbre et positions
-
     deallocateArbre(index->racine);
 
     // Free les phrases
-
     T_Phrase *iter_phrase = index->texte->premiere;
     T_Phrase *temp;
 
@@ -791,7 +789,6 @@ void deallocateArbre(T_Noeud *noeud){
     deallocateArbre(noeud->filsDroit);
 
     // Free les positions du noeud
-
     T_Position *iter_pos = noeud->listePositions;
 
     while (iter_pos != NULL) {   
@@ -801,7 +798,6 @@ void deallocateArbre(T_Noeud *noeud){
     }
 
     // Puis free le noeud
-
     free(noeud);
 
 }
