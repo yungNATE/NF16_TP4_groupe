@@ -169,29 +169,25 @@ T_Position *ajouterPosition(T_Position *listeP, int ligne, int ordre, int phrase
 
     while (iter != NULL){
 
-        if (iter->numeroLigne < ligne) // Parcourir les lignes
-        {   
+        if (iter->numeroLigne < ligne) { // Parcourir les lignes
             precedent = iter;
             iter = iter->position_suivante;
         }
 
         else if (iter->numeroLigne == ligne) // On a trouvé la bonne ligne
         { 
-            if (iter->ordre < ordre) // Parcourir les ordres
-            {   
+            if (iter->ordre < ordre){ // Parcourir les ordres
                 precedent = iter;
                 iter = iter->position_suivante;
             }
 
-            else if (iter->ordre == ordre)
-            {
+            else if (iter->ordre == ordre) {
                 printf("Existe déjà\n");
                 free(nouveau);
                 return NULL;
             }
 
-            else  // Ok insérer ici
-            {
+            else {  // Ok insérer ici
                 break;
             }
         }
