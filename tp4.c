@@ -342,7 +342,7 @@ int indexerFichier(T_Index *index, char *filename){
     while ((c = fgetc(file)) != EOF) {
 
         //* Dès qu'on a une fin de mot
-        if(c == "\n" || isspace(c) || c == '.') {
+        if(c == '\n' || isspace(c) || c == '.') {
 
             if (strlen(mot) > 0) // Si on a lu un mot
             { 
