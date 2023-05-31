@@ -33,7 +33,7 @@ int main(void)
         switch (choix)
         {
             case '1' :
-
+            
                 T_Index *index = creerIndex();
 
                 char *nomFichier = getStringInput("\nNom du fichier ? ");
