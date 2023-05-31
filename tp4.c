@@ -702,7 +702,7 @@ void fprintWord(T_Position *pos, FILE *f, int maj){
 
 }
 
-void construiretexte(T_Index index, char *filename){
+void construireTexte(T_Index index, char *filename){
 
     FILE *file = fopen(filename, "w");
     int flag_maj = 1; // On initialise avec 1 car le premier mot sera avec majuscule
@@ -714,12 +714,9 @@ void construiretexte(T_Index index, char *filename){
         if (flag_maj == 1) {
             fprintWord(iter_mot, file, 1);
             flag_maj = 0;
-        }
-
-        else {
+        } else {
             fprintWord(iter_mot, file, 0);
         }
-        
 
         if ((iter_mot->mot_suivant != NULL) && (iter_mot->numeroLigne != iter_mot->mot_suivant->numeroLigne)) {
             for (int k = 0; k < iter_mot->mot_suivant->numeroLigne - iter_mot->numeroLigne; k++){ // Si jamais on laisse 2 lignes ou plus d'espace

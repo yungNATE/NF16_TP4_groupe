@@ -109,7 +109,7 @@ int main(void)
             {
                 char *nom_nouveau_fichier = getStringInput("\nNom du fichier ? ");
 
-                construiretexte(*index, nom_nouveau_fichier);
+                construireTexte(*index, nom_nouveau_fichier);
 
                 free(nom_nouveau_fichier);
 
