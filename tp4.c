@@ -168,35 +168,30 @@ T_Position *ajouterPosition(T_Position *listeP, int ligne, int ordre, int phrase
     // Chercher la bonne position
     while (iter != NULL){
 
-        if (iter->numeroLigne < ligne) // Parcourir les lignes
-        {   
+        if (iter->numeroLigne < ligne) { // Parcourir les lignes
             precedent = iter;
             iter = iter->position_suivante;
         }
 
-        else if (iter->numeroLigne == ligne) // On a trouvé la bonne ligne
-        { 
-            if (iter->ordre < ordre) // Parcourir les ordres
-            {   
+        else if (iter->numeroLigne == ligne) { // On a trouvé la bonne ligne
+        
+            if (iter->ordre < ordre){ // Parcourir les ordres
                 precedent = iter;
                 iter = iter->position_suivante;
             }
 
-            else if (iter->ordre == ordre)
-            {
+            else if (iter->ordre == ordre) {
                 printf("Existe déjà\n");
                 free(nouveau);
                 return NULL;
             }
 
-            else  // Ok insérer ici
-            {
+            else { // Ok insérer ici
                 break;
             }
         }
 
-        else
-        {   
+        else {   
             // Ici on arrive si jamais iter->numeroLigne > ligne. 
             // Cela n'arrive jamais car on fait une insertion par ordre croissant.
 
@@ -534,26 +529,22 @@ void drawBinaryTree(T_Noeud* node, int level) {
 }
 
 void drawIndexTree(T_Index* index) {
-
     drawBinaryTree(index->racine, 0);
 }
 
 void afficherOccurencesMot(T_Index index, char *mot){
 
-    
-
     char affiche[MAX_WORD_LENGTH];
 
     T_Noeud *cible = rechercherMot(index, mot);
 
-    if (cible == NULL)
-    {
+    if (cible == NULL) {
         printf("Mot non trouvé.");
         return;
     }
     
     strcpy(affiche, cible->mot);
-    tranformerPremiereLettre(affiche);
+    premiereLettreEnMajuscule(affiche);
 
     printf("Mot = \"%s\"\n", affiche);
     printf("Occurences = %d\n", cible->nbOccurences);
@@ -570,8 +561,7 @@ void afficherOccurencesMot(T_Index index, char *mot){
 
         printf("| Ligne %d, mot %d : ", iter_pos->numeroLigne, iter_pos->ordre);
 
-        while (iter_phrase->numero != iter_pos->numeroPhrase)
-        {
+        while (iter_phrase->numero != iter_pos->numeroPhrase) {
             iter_phrase = iter_phrase->suivant;
         }
 
@@ -580,13 +570,12 @@ void afficherOccurencesMot(T_Index index, char *mot){
         iter_mot_affiche = iter_phrase->premiermot; // Le premier mot
 
         strcpy(affiche, iter_mot_affiche->noeud_parent->mot);
-        tranformerPremiereLettre(affiche);
+        premiereLettreEnMajuscule(affiche);
         printf("%s ", affiche);
 
         iter_mot_affiche = iter_mot_affiche->mot_suivant;
 
-        while (iter_mot_affiche != NULL && (iter_mot_affiche->numeroPhrase != (iter_pos->numeroPhrase + 1)))
-        {
+        while (iter_mot_affiche != NULL && (iter_mot_affiche->numeroPhrase != (iter_pos->numeroPhrase + 1))) {
             printWord(iter_mot_affiche);
             iter_mot_affiche = iter_mot_affiche->mot_suivant;
         }
@@ -599,9 +588,9 @@ void afficherOccurencesMot(T_Index index, char *mot){
 
 }
 
-void tranformerPremiereLettre(char *mot){
+void premiereLettreEnMajuscule(char *mot){
 
-    if (mot[0] >= 'a' && mot[0] <= 'z'){
+    if (mot[0] >= 'a' && mot[0] <= 'z') {
         mot[0] = mot[0] - ('a' - 'A');
     }
 
@@ -609,17 +598,15 @@ void tranformerPremiereLettre(char *mot){
 
 void printWord(T_Position *pos){
 
-
     printf("%s", pos->noeud_parent->mot);
 
     // Si c'est le dernier mot de la phrase afficher . et pas d'espace
-    if (pos->mot_suivant == NULL || (pos->numeroPhrase != (pos->mot_suivant->numeroPhrase)))
-    {
+    if (pos->mot_suivant == NULL || (pos->numeroPhrase != (pos->mot_suivant->numeroPhrase))) {
         printf(".");
     }
 
     // Espace sinon
-    else{
+    else {
         printf(" ");
     }
 
@@ -630,34 +617,30 @@ void fprintWord(T_Position *pos, FILE *f, int maj){
     char affiche[MAX_WORD_LENGTH];
     strcpy(affiche, pos->noeud_parent->mot);
 
-    if (maj == 1)
-    {
-        tranformerPremiereLettre(affiche);
+    if (maj == 1) {
+        premiereLettreEnMajuscule(affiche);
     }
     
     fprintf(f, "%s", affiche);
 
     // Si c'est le dernier mot de la phrase afficher . et et un espace
-    if (pos->mot_suivant != NULL && (pos->numeroPhrase != (pos->mot_suivant->numeroPhrase)))
-    {
+    if (pos->mot_suivant != NULL && (pos->numeroPhrase != (pos->mot_suivant->numeroPhrase))) {
         fprintf(f, ". ");
     }
 
     // Si c'est le dernier mot du fichier afficher . et pas d'espace
-    else if (pos->mot_suivant == NULL)
-    {
+    else if (pos->mot_suivant == NULL) {
         fprintf(f, ".");
     }
 
     // Espace sinon
-    else 
-    {
+    else {
         fprintf(f, " ");
     }
 
 }
 
-void construiretexte(T_Index index, char *filename){
+void construireTexte(T_Index index, char *filename){
 
     FILE *file = fopen(filename, "w");
     int flag_maj = 1; // On initialise avec 1 car le premier mot sera avec majuscule
@@ -666,29 +649,23 @@ void construiretexte(T_Index index, char *filename){
 
     while (iter_mot != NULL){
         
-        if (flag_maj == 1)
-        {
+        if (flag_maj == 1) {
             fprintWord(iter_mot, file, 1);
             flag_maj = 0;
-        }
-
-        else
-        {
+        } else {
             fprintWord(iter_mot, file, 0);
         }
-        
 
-        if ((iter_mot->mot_suivant != NULL) && (iter_mot->numeroLigne != iter_mot->mot_suivant->numeroLigne)){
+        if ((iter_mot->mot_suivant != NULL) && (iter_mot->numeroLigne != iter_mot->mot_suivant->numeroLigne)) {
             for (int k = 0; k < iter_mot->mot_suivant->numeroLigne - iter_mot->numeroLigne; k++){ // Si jamais on laisse 2 lignes ou plus d'espace
                 fprintf(file, "\n");
             }
         }
 
-
-        if (iter_mot->mot_suivant != NULL && iter_mot->mot_suivant->numeroPhrase > iter_mot->numeroPhrase) // Le prochain sera avec majuscule
-        {
+        if (iter_mot->mot_suivant != NULL && iter_mot->mot_suivant->numeroPhrase > iter_mot->numeroPhrase) { // Le prochain sera avec majuscule
             flag_maj = 1;
         }
+
         iter_mot = iter_mot->mot_suivant;
     }
 
@@ -699,6 +676,13 @@ void viderBuffer() {
     int c = 0;
     while (c != '\n' && c != EOF) {
         c = getchar();
+    }
+}
+
+void *isIndexSet(T_Index *index, bool shouldWarnUser){
+    if(index == NULL){
+        if(shouldWarnUser) printf("L'index n'est pas initialisé.\n");
+        return NULL;
     }
 }
 
@@ -720,16 +704,13 @@ char *getStringInput(char *prompt){
 void deallocateIndex(T_Index *index){
 
     // Free l'arbre et positions
-
     deallocateArbre(index->racine);
 
     // Free les phrases
-
     T_Phrase *iter_phrase = index->texte->premiere;
     T_Phrase *temp;
 
-    while (iter_phrase != NULL)
-    {
+    while (iter_phrase != NULL) {
         temp = iter_phrase->suivant;
         free(iter_phrase);
         iter_phrase = temp;
@@ -745,8 +726,7 @@ void deallocateArbre(T_Noeud *noeud){
 
     T_Position *temp;
 
-    if (noeud == NULL)
-    {
+    if (noeud == NULL) {
         return;
     }
 
@@ -754,18 +734,15 @@ void deallocateArbre(T_Noeud *noeud){
     deallocateArbre(noeud->filsDroit);
 
     // Free les positions du noeud
-
     T_Position *iter_pos = noeud->listePositions;
 
-    while (iter_pos != NULL)
-    {   
+    while (iter_pos != NULL) {   
         temp = iter_pos->position_suivante;
         free(iter_pos);
         iter_pos = temp;
     }
 
     // Puis free le noeud
-
     free(noeud);
 
 }
