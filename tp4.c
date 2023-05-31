@@ -660,7 +660,6 @@ void tranformerPremiereLettre(char *mot){
 
 void printWord(T_Position *pos){
 
-
     printf("%s", pos->noeud_parent->mot);
 
     // Si c'est le dernier mot de la phrase afficher . et pas d'espace
