@@ -724,10 +724,10 @@ void construireTexte(T_Index index, char *filename){
             }
         }
 
-
         if (iter_mot->mot_suivant != NULL && iter_mot->mot_suivant->numeroPhrase > iter_mot->numeroPhrase) { // Le prochain sera avec majuscule
             flag_maj = 1;
         }
+        
         iter_mot = iter_mot->mot_suivant;
     }
 
