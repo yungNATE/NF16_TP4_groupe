@@ -174,8 +174,8 @@ T_Position *ajouterPosition(T_Position *listeP, int ligne, int ordre, int phrase
             iter = iter->position_suivante;
         }
 
-        else if (iter->numeroLigne == ligne) // On a trouvé la bonne ligne
-        { 
+        else if (iter->numeroLigne == ligne) { // On a trouvé la bonne ligne
+        
             if (iter->ordre < ordre){ // Parcourir les ordres
                 precedent = iter;
                 iter = iter->position_suivante;
@@ -187,13 +187,12 @@ T_Position *ajouterPosition(T_Position *listeP, int ligne, int ordre, int phrase
                 return NULL;
             }
 
-            else {  // Ok insérer ici
+            else { // Ok insérer ici
                 break;
             }
         }
 
-        else
-        {   
+        else {   
             // Ici on arrive si jamais iter->numeroLigne > ligne. 
             // Cela n'arrive jamais car on fait une insertion par ordre croissant.
 
