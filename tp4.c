@@ -591,20 +591,16 @@ void drawBinaryTree(T_Noeud* node, int level) {
 }
 
 void drawIndexTree(T_Index* index) {
-
     drawBinaryTree(index->racine, 0);
 }
 
 void afficherOccurencesMot(T_Index index, char *mot){
 
-    
-
     char affiche[MAX_WORD_LENGTH];
 
     T_Noeud *cible = rechercherMot(index, mot);
 
-    if (cible == NULL)
-    {
+    if (cible == NULL) {
         printf("Mot non trouvé.");
         return;
     }
@@ -627,8 +623,7 @@ void afficherOccurencesMot(T_Index index, char *mot){
 
         printf("| Ligne %d, mot %d : ", iter_pos->numeroLigne, iter_pos->ordre);
 
-        while (iter_phrase->numero != iter_pos->numeroPhrase)
-        {
+        while (iter_phrase->numero != iter_pos->numeroPhrase) {
             iter_phrase = iter_phrase->suivant;
         }
 
@@ -642,8 +637,7 @@ void afficherOccurencesMot(T_Index index, char *mot){
 
         iter_mot_affiche = iter_mot_affiche->mot_suivant;
 
-        while (iter_mot_affiche != NULL && (iter_mot_affiche->numeroPhrase != (iter_pos->numeroPhrase + 1)))
-        {
+        while (iter_mot_affiche != NULL && (iter_mot_affiche->numeroPhrase != (iter_pos->numeroPhrase + 1))) {
             printWord(iter_mot_affiche);
             iter_mot_affiche = iter_mot_affiche->mot_suivant;
         }
@@ -658,7 +652,7 @@ void afficherOccurencesMot(T_Index index, char *mot){
 
 void tranformerPremiereLettre(char *mot){
 
-    if (mot[0] >= 'a' && mot[0] <= 'z'){
+    if (mot[0] >= 'a' && mot[0] <= 'z') {
         mot[0] = mot[0] - ('a' - 'A');
     }
 
@@ -670,13 +664,12 @@ void printWord(T_Position *pos){
     printf("%s", pos->noeud_parent->mot);
 
     // Si c'est le dernier mot de la phrase afficher . et pas d'espace
-    if (pos->mot_suivant == NULL || (pos->numeroPhrase != (pos->mot_suivant->numeroPhrase)))
-    {
+    if (pos->mot_suivant == NULL || (pos->numeroPhrase != (pos->mot_suivant->numeroPhrase))) {
         printf(".");
     }
 
     // Espace sinon
-    else{
+    else {
         printf(" ");
     }
 
@@ -687,28 +680,24 @@ void fprintWord(T_Position *pos, FILE *f, int maj){
     char affiche[MAX_WORD_LENGTH];
     strcpy(affiche, pos->noeud_parent->mot);
 
-    if (maj == 1)
-    {
+    if (maj == 1) {
         tranformerPremiereLettre(affiche);
     }
     
     fprintf(f, "%s", affiche);
 
     // Si c'est le dernier mot de la phrase afficher . et et un espace
-    if (pos->mot_suivant != NULL && (pos->numeroPhrase != (pos->mot_suivant->numeroPhrase)))
-    {
+    if (pos->mot_suivant != NULL && (pos->numeroPhrase != (pos->mot_suivant->numeroPhrase))) {
         fprintf(f, ". ");
     }
 
     // Si c'est le dernier mot du fichier afficher . et pas d'espace
-    else if (pos->mot_suivant == NULL)
-    {
+    else if (pos->mot_suivant == NULL) {
         fprintf(f, ".");
     }
 
     // Espace sinon
-    else 
-    {
+    else {
         fprintf(f, " ");
     }
 
@@ -723,27 +712,24 @@ void construiretexte(T_Index index, char *filename){
 
     while (iter_mot != NULL){
         
-        if (flag_maj == 1)
-        {
+        if (flag_maj == 1) {
             fprintWord(iter_mot, file, 1);
             flag_maj = 0;
         }
 
-        else
-        {
+        else {
             fprintWord(iter_mot, file, 0);
         }
         
 
-        if ((iter_mot->mot_suivant != NULL) && (iter_mot->numeroLigne != iter_mot->mot_suivant->numeroLigne)){
+        if ((iter_mot->mot_suivant != NULL) && (iter_mot->numeroLigne != iter_mot->mot_suivant->numeroLigne)) {
             for (int k = 0; k < iter_mot->mot_suivant->numeroLigne - iter_mot->numeroLigne; k++){ // Si jamais on laisse 2 lignes ou plus d'espace
                 fprintf(file, "\n");
             }
         }
 
 
-        if (iter_mot->mot_suivant != NULL && iter_mot->mot_suivant->numeroPhrase > iter_mot->numeroPhrase) // Le prochain sera avec majuscule
-        {
+        if (iter_mot->mot_suivant != NULL && iter_mot->mot_suivant->numeroPhrase > iter_mot->numeroPhrase) { // Le prochain sera avec majuscule
             flag_maj = 1;
         }
         iter_mot = iter_mot->mot_suivant;
@@ -785,8 +771,7 @@ void deallocateIndex(T_Index *index){
     T_Phrase *iter_phrase = index->texte->premiere;
     T_Phrase *temp;
 
-    while (iter_phrase != NULL)
-    {
+    while (iter_phrase != NULL) {
         temp = iter_phrase->suivant;
         free(iter_phrase);
         iter_phrase = temp;
@@ -802,8 +787,7 @@ void deallocateArbre(T_Noeud *noeud){
 
     T_Position *temp;
 
-    if (noeud == NULL)
-    {
+    if (noeud == NULL) {
         return;
     }
 
@@ -814,8 +798,7 @@ void deallocateArbre(T_Noeud *noeud){
 
     T_Position *iter_pos = noeud->listePositions;
 
-    while (iter_pos != NULL)
-    {   
+    while (iter_pos != NULL) {   
         temp = iter_pos->position_suivante;
         free(iter_pos);
         iter_pos = temp;
