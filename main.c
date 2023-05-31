@@ -30,12 +30,13 @@ int main(void)
 
         printf("\nChoix %c sélectionné \n", choix);
 
+        T_Index *index;
 
         switch (choix)
         {
             case '1' :
             
-                T_Index *index = creerIndex();
+                index = creerIndex();
 
                 char *nomFichier = getStringInput("\nNom du fichier ? ");
 
