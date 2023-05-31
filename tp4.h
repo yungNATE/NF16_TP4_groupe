@@ -93,7 +93,7 @@ T_Noeud *depiler(T_Pile *p);
 
 void drawBinaryTree(T_Noeud* node, int level);
 void drawIndexTree(T_Index* index);
-void tranformerPremiereLettre(char *mot);
+void premiereLettreEnMajuscule(char *mot);
 void printWord(T_Position *pos);
 void viderBuffer();
 char *getStringInput(char *prompt);
