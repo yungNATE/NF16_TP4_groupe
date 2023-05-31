@@ -30,11 +30,13 @@ int main(void)
 
         printf("\nChoix %c sélectionné \n", choix);
 
+        T_Index *index = NULL;
+
         switch (choix)
         {
             case '1' :
-
-                T_Index *index = creerIndex();
+            {
+                index = creerIndex();
 
                 char *nomFichier = getStringInput("\nNom du fichier ? ");
 
@@ -45,7 +47,7 @@ int main(void)
                 free(nomFichier);
 
                 break;
-                
+            }    
             case '2' :
             {
                 printf("\nNombre de mots dinstincts : %d", index->nbMotsDistincts);
