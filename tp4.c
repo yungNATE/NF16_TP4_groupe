@@ -419,7 +419,7 @@ void afficherIndex(T_Index index){
     char c = noeud->mot[0];
 
     while (pile_vide(p) == 0 || (noeud != NULL)) {
-
+        
         // On empile tous les fils gauches
         if (noeud != NULL){
             empiler(p, noeud);
