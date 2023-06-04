@@ -68,13 +68,6 @@ T_Noeud *depiler(T_Pile *p){
     }
 }
 
-void afficherPosition(T_Position *listeP){
-    while (listeP != NULL){
-        printf("Ligne: %d, Ordre: %d, Phrase: %d\n", listeP->numeroLigne, listeP->ordre, listeP->numeroPhrase);
-        listeP = listeP->position_suivante;
-    }
-}
-
 T_Position *creerPosition(int ligne, int ordre, int phrase){
 
     T_Position *nouveau = malloc(sizeof(T_Position));
@@ -567,26 +560,6 @@ T_Noeud* rechercherMot(T_Index index, char *mot){
     }
 
     return NULL;
-}
-
-void drawBinaryTree(T_Noeud* node, int level) {
-    if (node == NULL) {
-        return;
-    }
-    
-    drawBinaryTree(node->filsDroit, level + 1);
-    
-    for (int i = 0; i < level; i++) {
-        printf("\t");
-    }
-    
-    printf("%s (%d)\n", node->mot, node->nbOccurences);
-    
-    drawBinaryTree(node->filsGauche, level + 1);
-}
-
-void drawIndexTree(T_Index* index) {
-    drawBinaryTree(index->racine, 0);
 }
 
 void afficherOccurencesMot(T_Index index, char *mot){

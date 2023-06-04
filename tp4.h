@@ -58,10 +58,6 @@ typedef struct T_Pile {
 
 // Fonctions
 
-//Affichage positions d'un même mot
-
-void afficherPosition(T_Position *listeP);
-
 //Ajout d'une position
 T_Position *ajouterPosition(T_Position *listeP, int ligne, int ordre, int phrase);
 
@@ -91,8 +87,6 @@ int empiler(T_Pile *p, T_Noeud *noeud);
 T_Noeud *depiler(T_Pile *p);
 
 
-void drawBinaryTree(T_Noeud* node, int level);
-void drawIndexTree(T_Index* index);
 void premiereLettreEnMajuscule(char *mot);
 void printWord(T_Position *pos);
 void viderBuffer();
