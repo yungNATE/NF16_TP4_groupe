@@ -87,7 +87,6 @@ int empiler(T_Pile *p, T_Noeud *noeud);
 T_Noeud *depiler(T_Pile *p);
 
 
-void premiereLettreEnMajuscule(char *mot);
 void printWord(T_Position *pos);
 void viderBuffer();
 char *getStringInput(char *prompt);
