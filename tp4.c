@@ -68,13 +68,6 @@ T_Noeud *depiler(T_Pile *p){
     }
 }
 
-void afficherPosition(T_Position *listeP){
-    while (listeP != NULL){
-        printf("Ligne: %d, Ordre: %d, Phrase: %d\n", listeP->numeroLigne, listeP->ordre, listeP->numeroPhrase);
-        listeP = listeP->position_suivante;
-    }
-}
-
 T_Position *creerPosition(int ligne, int ordre, int phrase){
 
     T_Position *nouveau = malloc(sizeof(T_Position));
@@ -239,16 +232,14 @@ int ajouterOccurence(T_Index *index, char *mot, int ligne, int ordre, int phrase
             {   
                 index->texte->derniere->precedent->derniermot->mot_suivant = courant->derniere_position;
                 index->texte->derniere->premiermot = courant->derniere_position;
-                index->texte->derniere->derniermot = courant->derniere_position;
             }
 
             else {
 
                 index->texte->derniere->derniermot->mot_suivant = courant->derniere_position;
-                index->texte->derniere->derniermot = courant->derniere_position;
-                
             }
 
+            index->texte->derniere->derniermot = courant->derniere_position;
             // La mise à jour de la dernière position se fait dans ajouterPosition
             
             return 1; // Succès de l'ajout
@@ -491,26 +482,6 @@ T_Noeud* rechercherMot(T_Index index, char *mot){
     return NULL;
 }
 
-void drawBinaryTree(T_Noeud* node, int level) {
-    if (node == NULL) {
-        return;
-    }
-    
-    drawBinaryTree(node->filsDroit, level + 1);
-    
-    for (int i = 0; i < level; i++) {
-        printf("\t");
-    }
-    
-    printf("%s (%d)\n", node->mot, node->nbOccurences);
-    
-    drawBinaryTree(node->filsGauche, level + 1);
-}
-
-void drawIndexTree(T_Index* index) {
-    drawBinaryTree(index->racine, 0);
-}
-
 void afficherOccurencesMot(T_Index index, char *mot){
 
     char affiche[MAX_WORD_LENGTH];
@@ -523,7 +494,7 @@ void afficherOccurencesMot(T_Index index, char *mot){
     }
     
     strcpy(affiche, cible->mot);
-    premiereLettreEnMajuscule(affiche);
+    toupper(affiche[0]);
 
     printf("Mot = \"%s\"\n", affiche);
     printf("Occurences = %d\n", cible->nbOccurences);
@@ -549,7 +520,7 @@ void afficherOccurencesMot(T_Index index, char *mot){
         iter_mot_affiche = iter_phrase->premiermot; // Le premier mot
 
         strcpy(affiche, iter_mot_affiche->noeud_parent->mot);
-        premiereLettreEnMajuscule(affiche);
+        toupper(affiche[0]);
         printf("%s ", affiche);
 
         iter_mot_affiche = iter_mot_affiche->mot_suivant;
@@ -563,14 +534,6 @@ void afficherOccurencesMot(T_Index index, char *mot){
 
         iter_pos = iter_pos->position_suivante;
 
-    }
-
-}
-
-void premiereLettreEnMajuscule(char *mot){
-
-    if (mot[0] >= 'a' && mot[0] <= 'z') {
-        mot[0] = mot[0] - ('a' - 'A');
     }
 
 }
@@ -597,7 +560,7 @@ void fprintWord(T_Position *pos, FILE *f, int maj){
     strcpy(affiche, pos->noeud_parent->mot);
 
     if (maj == 1) {
-        premiereLettreEnMajuscule(affiche);
+        toupper(affiche[0]);
     }
     
     fprintf(f, "%s", affiche);
