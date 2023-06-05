@@ -78,8 +78,8 @@ T_Texte *creer_texte();
 
 void afficherOccurencesMot(T_Index index, char *mot);
 
-// Gestion pile
 
+// Gestion pile
 T_Pile *creer_pile(int size);
 int pile_vide(T_Pile *p);
 int pile_pleine(T_Pile *p);
