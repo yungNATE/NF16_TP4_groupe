@@ -239,16 +239,14 @@ int ajouterOccurence(T_Index *index, char *mot, int ligne, int ordre, int phrase
             {   
                 index->texte->derniere->precedent->derniermot->mot_suivant = courant->derniere_position;
                 index->texte->derniere->premiermot = courant->derniere_position;
-                index->texte->derniere->derniermot = courant->derniere_position;
             }
 
             else {
 
                 index->texte->derniere->derniermot->mot_suivant = courant->derniere_position;
-                index->texte->derniere->derniermot = courant->derniere_position;
-                
             }
 
+            index->texte->derniere->derniermot = courant->derniere_position;
             // La mise à jour de la dernière position se fait dans ajouterPosition
             
             return 1; // Succès de l'ajout
@@ -342,7 +340,7 @@ int indexerFichier(T_Index *index, char *filename){
     while ((c = fgetc(file)) != EOF) {
 
         //* Dès qu'on a une fin de mot
-        if(c == "\n" || isspace(c) || c == '.') {
+        if(c == '\n' || isspace(c) || c == '.') {
 
             if (strlen(mot) > 0) // Si on a lu un mot
             { 
