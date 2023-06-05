@@ -127,12 +127,12 @@ int main(void)
             case '7' :
                 if(isIndexSet(index, true)) {
                     deallocateIndex(index);
-                    free(index);
                 }
 
                 printf("\n======== PROGRAMME TERMINE ========\n");
 
                 break;
+                
 
             default :
 

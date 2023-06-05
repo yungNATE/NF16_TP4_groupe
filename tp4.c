@@ -542,7 +542,7 @@ void afficherOccurencesMot(T_Index index, char *mot){
     }
     
     strcpy(affiche, cible->mot);
-    premiereLettreEnMajuscule(affiche);
+    toupper(affiche[0]);
 
     printf("Mot = \"%s\"\n", affiche);
     printf("Occurences = %d\n", cible->nbOccurences);
@@ -568,7 +568,7 @@ void afficherOccurencesMot(T_Index index, char *mot){
         iter_mot_affiche = iter_phrase->premiermot; // Le premier mot
 
         strcpy(affiche, iter_mot_affiche->noeud_parent->mot);
-        premiereLettreEnMajuscule(affiche);
+        toupper(affiche[0]);
         printf("%s ", affiche);
 
         iter_mot_affiche = iter_mot_affiche->mot_suivant;
@@ -582,14 +582,6 @@ void afficherOccurencesMot(T_Index index, char *mot){
 
         iter_pos = iter_pos->position_suivante;
 
-    }
-
-}
-
-void premiereLettreEnMajuscule(char *mot){
-
-    if (mot[0] >= 'a' && mot[0] <= 'z') {
-        mot[0] = mot[0] - ('a' - 'A');
     }
 
 }
@@ -616,7 +608,7 @@ void fprintWord(T_Position *pos, FILE *f, int maj){
     strcpy(affiche, pos->noeud_parent->mot);
 
     if (maj == 1) {
-        premiereLettreEnMajuscule(affiche);
+        toupper(affiche[0]);
     }
     
     fprintf(f, "%s", affiche);
