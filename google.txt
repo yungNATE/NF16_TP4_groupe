@@ -1,0 +1,5 @@
+Un arbre binaire (ou binaire-unaire) est un arbre avec une racine dans 
+lequel chaque nœud a au plus deux fils. Un arbre binaire strict ou 
+localement complet est un arbre dont tous les nœuds possèdent zéro 
+ou deux fils. Un arbre binaire dégénéré est un arbre dans lequel 
+tous les nœuds internes n'ont qu'un seul fils.

@@ -159,6 +159,7 @@ T_Position *ajouterPosition(T_Position *listeP, int ligne, int ordre, int phrase
     T_Position *precedent = NULL;
 
     // Chercher la bonne position
+
     while (iter != NULL){
 
         if (iter->numeroLigne < ligne) { // Parcourir les lignes
@@ -193,6 +194,7 @@ T_Position *ajouterPosition(T_Position *listeP, int ligne, int ordre, int phrase
     }
 
     // On est à la bonne ligne et au bon ordre (à la fin normalement)
+
     nouveau->position_suivante = iter;
     precedent->position_suivante = nouveau;
 
@@ -203,14 +205,23 @@ T_Position *ajouterPosition(T_Position *listeP, int ligne, int ordre, int phrase
 }
 
 int ajouterOccurence(T_Index *index, char *mot, int ligne, int ordre, int phrase){
+
+    // Conversion du mot en minuscules pour l'ignorance de la case
+
+    int i;
+    int tailleMot = strlen(mot);
+    for (i = 0; i < tailleMot; i++) {
+        mot[i] = tolower(mot[i]);
+    }
     
     // Recherche de l'emplacement d'insertion dans l'ABR
+
     T_Noeud *courant = index->racine;
     T_Noeud *precedent = NULL;
     
     while (courant != NULL) {
 
-        int comparaison = strcasecmp(mot, courant->mot);
+        int comparaison = strcmp(mot, courant->mot);
         
         if (comparaison == 0) {
 
@@ -232,38 +243,48 @@ int ajouterOccurence(T_Index *index, char *mot, int ligne, int ordre, int phrase
             {   
                 index->texte->derniere->precedent->derniermot->mot_suivant = courant->derniere_position;
                 index->texte->derniere->premiermot = courant->derniere_position;
+                index->texte->derniere->derniermot = courant->derniere_position;
             }
 
             else {
 
                 index->texte->derniere->derniermot->mot_suivant = courant->derniere_position;
+                index->texte->derniere->derniermot = courant->derniere_position;
+                
             }
 
-            index->texte->derniere->derniermot = courant->derniere_position;
             // La mise à jour de la dernière position se fait dans ajouterPosition
             
             return 1; // Succès de l'ajout
 
-        } 
-        
-        else { // comparaison < ou > 0, le mot n'existe pas encore dans l'index
-                  
+        } else if (comparaison > 0) {
+
             precedent = courant;
-            courant = comparaison < 0 ? courant->filsGauche : courant->filsDroit;
-        
+            courant = courant->filsDroit;
+
+        }
+
+        else {
+
+            precedent = courant;
+            courant = courant->filsGauche;
+
         }
     }
     
 
     // Le mot n'existe pas dans l'index, création d'un nouveau nœud
+
     T_Noeud *nouveauNoeud = creerNoeud(mot, ligne, ordre, phrase);
 
     
     if (precedent == NULL) { // Il n'y avait rien au début
+
         index->racine = nouveauNoeud;
-    } 
-    else {
-        int comparaisonPrecedent = strcasecmp(mot, precedent->mot);
+
+    } else {
+
+        int comparaisonPrecedent = strcmp(mot, precedent->mot);
 
         if (comparaisonPrecedent < 0) {
 
@@ -274,6 +295,7 @@ int ajouterOccurence(T_Index *index, char *mot, int ligne, int ordre, int phrase
             precedent->filsDroit = nouveauNoeud;
 
         }
+
     }
     
     index->nbMotsDistincts++;
@@ -295,10 +317,13 @@ int ajouterOccurence(T_Index *index, char *mot, int ligne, int ordre, int phrase
     }
 
     else {
+
         index->texte->derniere->derniermot->mot_suivant = nouveauNoeud->derniere_position;
         index->texte->derniere->derniermot = nouveauNoeud->derniere_position;
+        
     }
 
+    
     return 1; // Succès
 }
 
@@ -312,7 +337,7 @@ int indexerFichier(T_Index *index, char *filename){
     char mot[MAX_WORD_LENGTH];
     memset(mot, '\0', sizeof(mot));
 
-    int track[3] = {1,1,1};  // Track de l'ordre : ligne, ordre dans la ligne, phrase
+    int track[3] = {1,1,1};  // Track de l'ordre
 
 
     //* Ouvrir le fichier
@@ -332,8 +357,7 @@ int indexerFichier(T_Index *index, char *filename){
 
     while ((c = fgetc(file)) != EOF) {
 
-        //* Dès qu'on a une fin de mot
-        if(c == '\n' || isspace(c) || c == '.') {
+        if (c == '\n') { // Nouvelle ligne
 
             if (strlen(mot) > 0) // Si on a lu un mot
             { 
@@ -353,43 +377,78 @@ int indexerFichier(T_Index *index, char *filename){
                 // On reset le mot
                 memset(mot, '\0', sizeof(mot));
             }
+
+            track[1] = 1;
+            track[0]++;
+            
         }
 
-        //* Gestion de chaque type de fin de mot
-        if (c == '\n') { // Nouvelle ligne
-            track[1] = 1;   // On reset l'ordre dans la ligne
-            track[0]++;     // On incrémente le numéro de ligne
-        }
-
-        else if (isspace(c)) { // Possiblement Nouveau mot
         // TODO : Peut-être remplacer isspace() par isblank() ? Comme isspace() prend en compte aussi les '\n' ? 
         // En l'état ça marche parcequ'on check '\n' avant mais faudrait pas changer l'ordre des conditions
-        // attention au retour chariot (\r) qui n'est pas pris en compte par isblank()
+        else if (isspace(c)) { 
+            
+            // On finit la lecture du mot et on l'insère
 
-            if (strlen(mot) > 0) { // Si on a lu un mot
+            if (strlen(mot) > 0) // Si on a lu un mot
+            {
+                // Si ce mot fait partie d'une nouvelle phrase
+                if (track[2] > flag_nouvelle_phrase) { // On en crée une et met à jour le flag
+                    nouvellephrase = creer_phrase(track[2]);
+                    nouvellephrase->precedent = index->texte->derniere;
+                    index->texte->derniere->suivant = nouvellephrase;
+                    index->texte->derniere = nouvellephrase;
+                    
+                    flag_nouvelle_phrase = track[2];
+                }
+
+                ajouterOccurence(index, mot, track[0], track[1], track[2]);
+                nb_mots_lus++;
+                
+                // On reset le mot
+                memset(mot, '\0', sizeof(mot));
                 track[1]++;
+
             }
 
+            // On reset le mot
+            memset(mot, '\0', sizeof(mot));
+
         }
+
 
         else if (c == '.') { // Nouvelle phrase
 
-            if (strlen(mot) > 0) { // Si on a lu un mot
+            if (strlen(mot) > 0) // Si on a lu qq chose comme mot
+            {
+                //Si ce mot fait partie d'une nouvelle phrase
+                if (track[2] > flag_nouvelle_phrase) { // On en crée une et met à jour le flag
+                    nouvellephrase = creer_phrase(track[2]);
+                    nouvellephrase->precedent = index->texte->derniere;
+                    index->texte->derniere->suivant = nouvellephrase;
+                    index->texte->derniere = nouvellephrase;
+                    
+                    flag_nouvelle_phrase = track[2];
+                }
+
+                ajouterOccurence(index, mot, track[0], track[1], track[2]);
+                nb_mots_lus++;
+                
+                // On reset le mot
+                memset(mot, '\0', sizeof(mot));
                 track[1]++;
+
             }
 
             track[2]++;
             
         }
 
+
         else { // On rajoute le caractère au mot courant
             strncat(mot, &c, 1);
         }
     }
 
-    //! ⬇️ à la place, on aurait pu boucler simplement sur fgetc() et à chaque coup faire un test sur EOF 
-    // (au même titre que les 3 autres textes)
-    
     // Si on a oublié le point à la toute fin du texte, on ajoute le dernier mot qui est resté en suspens
     if (strlen(mot) > 0) {
         ajouterOccurence(index, mot, track[0], track[1], track[2]);
@@ -401,7 +460,7 @@ int indexerFichier(T_Index *index, char *filename){
 }
 
 void afficherIndex(T_Index index){
-
+    
     T_Pile *p = creer_pile(index.nbMotsTotal);
     T_Noeud *noeud = index.racine;
     T_Position *position;
@@ -409,42 +468,63 @@ void afficherIndex(T_Index index){
 
     char c = noeud->mot[0];
 
-    while (pile_vide(p) == 0 || (noeud != NULL)) {
-        
-        // On empile tous les fils gauches
+    while (pile_vide(p) == 0 || (noeud != NULL))
+
+
         if (noeud != NULL){
             empiler(p, noeud);
             noeud = noeud->filsGauche;
-            continue;
         }
 
-        // On a fini
-        if(pile_vide(p) != 0) break; 
+        else {
 
+            if (pile_vide(p) == 0){
 
-        // Sinon afficher
-        noeud = depiler(p);
+                noeud = depiler(p);
 
-        if (noeud->mot[0] != c){
-            c = noeud->mot[0];
-            printf("\n");
-            printf("%c\n", c - ('a' - 'A'));
-        }
+                // Afficher 
 
-        strcpy(mot_affiche, noeud->mot);
-        mot_affiche[0] = mot_affiche[0] - ('a' - 'A');
-        printf("|-- %s\n", mot_affiche);
+                if (noeud->mot[0] == c){
+                    
+                    strcpy(mot_affiche, noeud->mot);
+                    mot_affiche[0] = mot_affiche[0] - ('a' - 'A');
+                    printf("|-- %s\n", mot_affiche);
 
-        position = noeud->listePositions;
-        while (position != NULL){
-            printf("|---- (l:%d, o:%d, p:%d)\n", position->numeroLigne,position->ordre, position->numeroPhrase);
-            position = position->position_suivante;
-        }
-        printf("|\n");
+                    position = noeud->listePositions;
+                    while (position != NULL){
+                        printf("|---- (l:%d, o:%d, p:%d)\n", position->numeroLigne,position->ordre, position->numeroPhrase);
+                        position = position->position_suivante;
+                    }
+                    printf("|\n");
 
-        noeud = noeud->filsDroit;
+                }
+
+                else {
+
+                    c = noeud->mot[0];
+                    printf("\n");
+                    printf("%c\n", c - ('a' - 'A'));
+
+                    strcpy(mot_affiche, noeud->mot);
+                    mot_affiche[0] = mot_affiche[0] - ('a' - 'A');
+                    printf("|-- %s\n", mot_affiche);
+
+                    position = noeud->listePositions;
+                    while (position != NULL){
+                        printf("|---- (l:%d, o:%d, p:%d)\n", position->numeroLigne,position->ordre, position->numeroPhrase);
+                        position = position->position_suivante;
+                    }
+                    printf("|\n");
+
+                }
+
+                noeud = noeud->filsDroit;
+            }
+
+            else break; // On a fini
             
-    }
+        }
+
 
     free(p);
 }
@@ -494,7 +574,7 @@ void afficherOccurencesMot(T_Index index, char *mot){
     }
     
     strcpy(affiche, cible->mot);
-    toupper(affiche[0]);
+    premiereLettreEnMajuscule(affiche);
 
     printf("Mot = \"%s\"\n", affiche);
     printf("Occurences = %d\n", cible->nbOccurences);
@@ -520,7 +600,7 @@ void afficherOccurencesMot(T_Index index, char *mot){
         iter_mot_affiche = iter_phrase->premiermot; // Le premier mot
 
         strcpy(affiche, iter_mot_affiche->noeud_parent->mot);
-        toupper(affiche[0]);
+        premiereLettreEnMajuscule(affiche);
         printf("%s ", affiche);
 
         iter_mot_affiche = iter_mot_affiche->mot_suivant;
@@ -534,6 +614,14 @@ void afficherOccurencesMot(T_Index index, char *mot){
 
         iter_pos = iter_pos->position_suivante;
 
+    }
+
+}
+
+void premiereLettreEnMajuscule(char *mot){
+
+    if (mot[0] >= 'a' && mot[0] <= 'z') {
+        mot[0] = mot[0] - ('a' - 'A');
     }
 
 }
@@ -560,7 +648,7 @@ void fprintWord(T_Position *pos, FILE *f, int maj){
     strcpy(affiche, pos->noeud_parent->mot);
 
     if (maj == 1) {
-        toupper(affiche[0]);
+        premiereLettreEnMajuscule(affiche);
     }
     
     fprintf(f, "%s", affiche);
